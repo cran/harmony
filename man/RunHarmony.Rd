@@ -3,6 +3,7 @@
 \name{RunHarmony}
 \alias{RunHarmony}
 \alias{RunHarmony.Seurat}
+\alias{RunHarmony.SingleCellExperiment}
 \title{Harmony single cell integration}
 \usage{
 RunHarmony(object, group.by.vars, ...)
@@ -26,8 +27,29 @@ RunHarmony(object, group.by.vars, ...)
   verbose = TRUE,
   reference_values = NULL,
   reduction.save = "harmony",
-  assay.use = "RNA",
+  assay.use = NULL,
   project.dim = TRUE,
+  ...
+)
+
+\method{RunHarmony}{SingleCellExperiment}(
+  object,
+  group.by.vars,
+  dims.use = NULL,
+  theta = NULL,
+  lambda = NULL,
+  sigma = 0.1,
+  nclust = NULL,
+  tau = 0,
+  block.size = 0.05,
+  max.iter.harmony = 10,
+  max.iter.cluster = 20,
+  epsilon.cluster = 1e-05,
+  epsilon.harmony = 1e-04,
+  plot_convergence = FALSE,
+  verbose = TRUE,
+  reference_values = NULL,
+  reduction.save = "HARMONY",
   ...
 )
 }
@@ -42,17 +64,17 @@ RunHarmony(object, group.by.vars, ...)
 
 \item{dims.use}{Which PCA dimensions to use for Harmony. By default, use all}
 
-\item{theta}{Diversity clustering penalty parameter. Specify for each 
+\item{theta}{Diversity clustering penalty parameter. Specify for each
 variable in group.by.vars. Default theta=2. theta=0 does not encourage any
  diversity. Larger values of theta result in more diverse clusters.}
 
-\item{lambda}{Ridge regression penalty parameter. Specify for each variable 
-in group.by.vars. Default lambda=1. Lambda must be strictly positive. 
+\item{lambda}{Ridge regression penalty parameter. Specify for each variable
+in group.by.vars. Default lambda=1. Lambda must be strictly positive.
 Smaller values result in more aggressive correction.}
 
-\item{sigma}{Width of soft kmeans clusters. Default sigma=0.1. Sigma scales 
+\item{sigma}{Width of soft kmeans clusters. Default sigma=0.1. Sigma scales
 the distance from a cell to cluster centroids. Larger values of sigma result
- in cells assigned to more clusters. Smaller values of sigma make soft 
+ in cells assigned to more clusters. Smaller values of sigma make soft
  kmeans cluster approach hard clustering.}
 
 \item{nclust}{Number of clusters in model. nclust=1 equivalent to simple
@@ -67,7 +89,7 @@ Between 0 to 1, default 0.05. Larger values may be faster but less accurate}
 \item{max.iter.harmony}{Maximum number of rounds to run Harmony. One round
 of Harmony involves one clustering and one correction step.}
 
-\item{max.iter.cluster}{Maximum number of rounds to run clustering at each 
+\item{max.iter.cluster}{Maximum number of rounds to run clustering at each
 round of Harmony.}
 
 \item{epsilon.cluster}{Convergence tolerance for clustering round of Harmony
@@ -76,7 +98,7 @@ Set to -Inf to never stop early.}
 \item{epsilon.harmony}{Convergence tolerance for Harmony. Set to -Inf to
 never stop early.}
 
-\item{plot_convergence}{Whether to print the convergence plot of the 
+\item{plot_convergence}{Whether to print the convergence plot of the
 clustering objective function. TRUE to plot, FALSE to suppress. This can be
  useful for debugging.}
 
@@ -87,11 +109,10 @@ suppress.}
 that have batch variables values matching reference_values will not be moved}
 
 \item{reduction.save}{Keyword to save Harmony reduction. Useful if you want
-to try Harmony with multiple parameters and save them as e.g. 
+to try Harmony with multiple parameters and save them as e.g.
 'harmony_theta0', 'harmony_theta1', 'harmony_theta2'}
 
-\item{assay.use}{(Seurat V3 only) Which assay to Harmonize with (RNA 
-by default).}
+\item{assay.use}{(Seurat V3 only) Which assay to run PCA on if no PCA present?}
 
 \item{project.dim}{Project dimension reduction loadings. Default TRUE.}
 }
@@ -99,6 +120,9 @@ by default).}
 Seurat (version 3) object. Harmony dimensions placed into
 dimensional reduction object harmony. For downstream Seurat analyses,
 use reduction='harmony'.
+
+SingleCellExperiment object. After running RunHarmony, the corrected
+cell embeddings can be accessed with reducedDim(object, "Harmony").
 }
 \description{
 Run Harmony algorithm with Seurat and SingleCellAnalysis pipelines.

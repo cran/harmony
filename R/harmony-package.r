@@ -1,22 +1,22 @@
-#' Harmony: fast, accurate, and robust single cell integration. 
+#' Harmony: fast, accurate, and robust single cell integration.
 #'
-#' Algorithm for single cell integration. 
+#' Algorithm for single cell integration.
 #'
-#' @section Usage: 
-#' 
+#' @section Usage:
+#'
 #' \enumerate{
-#' \item ?HarmonyMatrix to run Harmony on gene expression or PCA 
+#' \item ?HarmonyMatrix to run Harmony on gene expression or PCA
 #' embeddings matrix.
-#' \item ?RunHarmony to run Harmony on Seurat objects.
+#' \item ?RunHarmony to run Harmony on Seurat or SingleCellExperiment objects.
 #' }
 #' @section Useful links:
-#' 
+#'
 #' \enumerate{
 #' \item Report bugs at \url{https://github.com/immunogenomics/harmony/issues}
 #' \item Read the manuscript
-#' \href{https://www.nature.com/articles/s41592-019-0619-0}{online}.
+#' \href{https://www.biorxiv.org/content/10.1101/461954v2}{online}.
 #' }
-#' 
+#'
 #'
 #' @name harmony
 #' @docType package
@@ -28,5 +28,7 @@
 #' @importFrom methods is
 #' @importFrom cowplot plot_grid
 #' @importFrom rlang .data
+#' @importFrom rlang `%||%`
+#' @importFrom stats model.matrix
 loadModule("harmony_module", TRUE)
 NULL

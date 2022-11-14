@@ -208,7 +208,7 @@ int harmony::update_R() {
 
     // Step 2: recompute R for removed cells
     R.cols(cells_update) = _scale_dist.cols(cells_update);    
-    R.cols(cells_update) = R.cols(cells_update) % (pow((E + 1) / (O + 1), theta) * Phi.cols(cells_update));
+    R.cols(cells_update) = R.cols(cells_update) % (harmony_pow((E + 1) / (O + 1), theta) * Phi.cols(cells_update));
     R.cols(cells_update) = normalise(R.cols(cells_update), 1, 0); // L1 norm columns
     
     // Step 3: put cells back 
@@ -288,7 +288,6 @@ RCPP_MODULE(harmony_module) {
   .method("cluster_cpp", &harmony::cluster_cpp)
   .method("moe_correct_ridge_cpp", &harmony::moe_correct_ridge_cpp)
   .method("moe_ridge_get_betas_cpp", &harmony::moe_ridge_get_betas_cpp)
-  
   ;
 }
 
