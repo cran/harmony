@@ -100,26 +100,31 @@ RunHarmony.default <- function(
   ...
   ) {
     
-    ## Sanity check for number of cores
-    max.cores <- RhpcBLASctl::omp_get_max_threads()
-    if ((ncores != as.integer(ncores)) || (ncores < 1) || (ncores > max.cores)) {
-        stop(paste0("Invalid number of ncores provided!",
-                   "Acceptable range of ncores: 1 -", max.cores))
-    }
-    prev.ncores.blas <- RhpcBLASctl::blas_get_num_procs()
-    prev.ncores.omp <- RhpcBLASctl::omp_get_num_procs()
+
+
+    ## Try to set number of OPENBLAS cores for harmony.
+    ## the function tries to set OpenMP threads
+    ## In case OpenMP is not supported it returns FALSE so we don't
+    ## set threads and harmony runs in single-thread mode
+    set.cores <- setOMPthreads(ncores)
+    
     
     tryCatch({
-        
         ## Check legacy arguments
         check_legacy_args(...)
 
-        RhpcBLASctl::blas_set_num_threads(ncores)
-        RhpcBLASctl::omp_set_num_threads(ncores)
+        ## Set threads if BLAS threas are set/detected properly
+        if (set.cores) {
+            prev.ncores.blas <- RhpcBLASctl::blas_get_num_procs()
+            prev.ncores.omp <- RhpcBLASctl::omp_get_num_procs()
+            RhpcBLASctl::blas_set_num_threads(ncores)
+            RhpcBLASctl::omp_set_num_threads(ncores)
+        }
+        
         
         ## Parameter setting --------------------------------------------------------
 
-        if(!inherits(.options, "harmony_options")) {
+        if (!inherits(.options, "harmony_options")) {
             stop("Error: .options must be created from harmony_options()!")
         }
 
@@ -187,7 +192,7 @@ RunHarmony.default <- function(
             stop('Please specify theta for each variable')
         }
         
-                                        # determine sigma if it is a scalar
+        ## determine sigma if it is a scalar
         if (length(sigma) == 1 & nclust > 1) {
             sigma <- rep(sigma, nclust)
         }
@@ -262,8 +267,10 @@ RunHarmony.default <- function(
     }, ## main tryCatch block ends here
     
     finally={
-        RhpcBLASctl::blas_set_num_threads(prev.ncores.blas)
-        RhpcBLASctl::omp_set_num_threads(prev.ncores.omp)
+        if(set.cores) {
+            RhpcBLASctl::blas_set_num_threads(prev.ncores.blas)
+            RhpcBLASctl::omp_set_num_threads(prev.ncores.omp)
+        }
     })
     
     
