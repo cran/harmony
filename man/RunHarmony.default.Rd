@@ -2,7 +2,7 @@
 % Please edit documentation in R/ui.R
 \name{RunHarmony.default}
 \alias{RunHarmony.default}
-\title{Main Harmony interface}
+\title{This is the primary harmony interface.}
 \usage{
 \method{RunHarmony}{default}(
   data_mat,
@@ -50,7 +50,7 @@ be equal length with the number of variables to be
 corrected. In this scenario, each covariate level group will be
 assigned the scalars specified by the user. If set to NULL,
 harmony will determine lambdas automatically and try to
-minimize overcorrection (beta).}
+minimize overcorrection (Use with caution still in beta testing).}
 
 \item{nclust}{Number of clusters in model. nclust=1 equivalent to
 simple linear regression.}
@@ -92,8 +92,9 @@ By default, matrix with corrected PCA embeddings. If
     reference class type).
 }
 \description{
-Use this  to run the Harmony algorithm directly on cell embedding
-matrix.
+Use this generic with a cell embeddings matrix, a metadata table
+and a categorical covariate to run the Harmony algorithm directly
+on cell embedding matrix.
 }
 \examples{
 
@@ -121,3 +122,10 @@ dim(harmony_object$Z_corr) ## corrected PCA embeddings
 head(harmony_object$O) ## batch by cluster co-occurence matrix
 
 }
+\seealso{
+Other RunHarmony: 
+\code{\link{RunHarmony.Seurat}()},
+\code{\link{RunHarmony.SingleCellExperiment}()},
+\code{\link{RunHarmony}()}
+}
+\concept{RunHarmony}
