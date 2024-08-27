@@ -55,9 +55,9 @@ suppress. This can be useful for debugging.}
 object or only the corrected PCA embeddings.}
     \item{\code{verbose}}{Whether to print progress messages. TRUE to print,
 FALSE to suppress.}
-    \item{\code{.options}}{Advanced parameters of RunHarmony. This must be the
-result from a call to `harmony_options`. See ?`harmony_options`
-for more details.}
+    \item{\code{.options}}{Setting advanced parameters of RunHarmony. This must be the
+result from a call to `harmony_options`. See ?`harmony_options` for 
+parameters not listed above and more details.}
   }}
 }
 \description{
