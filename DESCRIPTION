@@ -1,6 +1,6 @@
 Package: harmony
 Title: Fast, Sensitive, and Accurate Integration of Single Cell Data
-Version: 1.2.3
+Version: 1.2.4
 Authors@R: c(
     person("Ilya", "Korsunsky", email = "ilya.korsunsky@gmail.com",
         role = c("cre", "aut"), comment = c(ORCID = "0000-0003-4848-3948")),
@@ -37,16 +37,21 @@ Suggests: SingleCellExperiment, Seurat (>= 4.1.1), testthat, knitr,
         data.table
 VignetteBuilder: knitr
 NeedsCompilation: yes
-Packaged: 2024-11-27 19:11:32 UTC; main
-Author: Ilya Korsunsky [cre, aut] (<https://orcid.org/0000-0003-4848-3948>),
-  Martin Hemberg [aut] (<https://orcid.org/0000-0001-8895-5239>),
-  Nikolaos Patikas [aut, ctb] (<https://orcid.org/0000-0002-3978-0134>),
-  Hongcheng Yao [aut, ctb] (<https://orcid.org/0000-0002-0743-4835>),
-  Nghia Millard [aut] (<https://orcid.org/0000-0002-0518-7674>),
-  Jean Fan [aut, ctb] (<https://orcid.org/0000-0002-0212-5451>),
-  Kamil Slowikowski [aut, ctb] (<https://orcid.org/0000-0002-2843-6370>),
+Packaged: 2025-10-09 17:59:31 UTC; main
+Author: Ilya Korsunsky [cre, aut] (ORCID:
+    <https://orcid.org/0000-0003-4848-3948>),
+  Martin Hemberg [aut] (ORCID: <https://orcid.org/0000-0001-8895-5239>),
+  Nikolaos Patikas [aut, ctb] (ORCID:
+    <https://orcid.org/0000-0002-3978-0134>),
+  Hongcheng Yao [aut, ctb] (ORCID:
+    <https://orcid.org/0000-0002-0743-4835>),
+  Nghia Millard [aut] (ORCID: <https://orcid.org/0000-0002-0518-7674>),
+  Jean Fan [aut, ctb] (ORCID: <https://orcid.org/0000-0002-0212-5451>),
+  Kamil Slowikowski [aut, ctb] (ORCID:
+    <https://orcid.org/0000-0002-2843-6370>),
   Miles Smith [ctb],
-  Soumya Raychaudhuri [aut] (<https://orcid.org/0000-0002-1901-8265>)
+  Soumya Raychaudhuri [aut] (ORCID:
+    <https://orcid.org/0000-0002-1901-8265>)
 Maintainer: Ilya Korsunsky <ilya.korsunsky@gmail.com>
 Repository: CRAN
-Date/Publication: 2024-11-27 23:50:02 UTC
+Date/Publication: 2025-10-10 05:30:09 UTC

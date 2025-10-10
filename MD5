@@ -1,4 +1,4 @@
-01972d6510034f29a01cc5f2ac7ec10c *DESCRIPTION
+c7db03395f8e644a1accc94e15b84da6 *DESCRIPTION
 79822adca29db2d62b89ea60a1a12283 *NAMESPACE
 5a63030ade96eb29f432be14461d1340 *NEWS
 7ae331907685765a2f4c10c5e392edad *R/RcppExports.R
@@ -15,13 +15,13 @@ f82d1b8d3efc9e04567b9223a87cfc8c *data/cell_lines.rda
 57ef1f51bea342b5bfba9ce640cef81d *data/pbmc_stim.RData
 6deb4a1952fdfbfff9c24e6409c52104 *inst/doc/Seurat.R
 3c10411d49b5c3c00e965bbe3b68acf2 *inst/doc/Seurat.Rmd
-eb300941006528996b3faae4c9bbb44e *inst/doc/Seurat.html
-f33de3b7f970d3f0b0ad0d763cd0f006 *inst/doc/detailedWalkthrough.R
-311ed767bef6960ed49b0755c33b1e44 *inst/doc/detailedWalkthrough.Rmd
-c89e7fde7394b01e4106a1c0ec0eb518 *inst/doc/detailedWalkthrough.html
+deca8b40482b7442553858825acf440d *inst/doc/Seurat.html
+5b871512b2500956e1f10c98d7f0df90 *inst/doc/detailedWalkthrough.R
+dfd5883775da5cddd9b042e8fedd3c7d *inst/doc/detailedWalkthrough.Rmd
+e477bfc645ccf5b05626da8d2a2432d0 *inst/doc/detailedWalkthrough.html
 61b801d391b63d5ff47af2cf0f56345e *inst/doc/quickstart.R
 713664e154770444c18584343217bbca *inst/doc/quickstart.Rmd
-4be08655300e8380f189eb771bbe8168 *inst/doc/quickstart.html
+e2f8c33d13f3adc4d34614eb5f5bd027 *inst/doc/quickstart.html
 bf895235bd5524e6f9d7b2321ea36d3e *man/HarmonyMatrix.Rd
 6a3cf3e953867a70093f1f9e6ab8d359 *man/RunHarmony.Rd
 f38510f785fff156a011db4d7c02caa6 *man/RunHarmony.Seurat.Rd
@@ -36,7 +36,7 @@ af547d8d7c3144f1b8957a777ef88d7c *man/harmony_options.Rd
 10f8e2044225f0da29669ca1ff586910 *man/pbmc.ctrl.Rd
 d3a0043bfb2bac71af30d1e5bdda4d35 *man/pbmc.stim.Rd
 420b054119189cf8aea02810178b4c0e *man/pipe.Rd
-2a6f9e9e044a78154d3cfda5936d6f48 *src/Makevars
+00cd049ae942d6868bcc385687c1b445 *src/Makevars
 29dd356b4dee1a598a077b2d5f74614e *src/Makevars.win
 50e1d7c8061ba6fbcc7ac2d59fbe62e4 *src/RcppExports.cpp
 36c8a6f64eb2b08b094f6aec551de0f5 *src/harmony.cpp
@@ -48,6 +48,6 @@ bc4f892c377f2302596fa1328f77c9ad *src/utils.h
 3fdb4f1b18c10e695a84e923f77a5046 *tests/testthat.R
 f357c8b80c77d2c96923e4a15d794213 *tests/testthat/test_integration.R
 3c10411d49b5c3c00e965bbe3b68acf2 *vignettes/Seurat.Rmd
-311ed767bef6960ed49b0755c33b1e44 *vignettes/detailedWalkthrough.Rmd
+dfd5883775da5cddd9b042e8fedd3c7d *vignettes/detailedWalkthrough.Rmd
 a929e50a91b1af9de88c7353a2257c42 *vignettes/main.jpg
 713664e154770444c18584343217bbca *vignettes/quickstart.Rmd
