@@ -1,4 +1,4 @@
-## ---- message=FALSE, warning=FALSE, class.source = 'fold-hide'----------------
+## ----message=FALSE, warning=FALSE, class.source = 'fold-hide'-----------------
 
 ## Source required libraries
 library(data.table)
@@ -56,7 +56,7 @@ do_scatter <- function(umap_use, meta_data, label_name, no_guides = TRUE, do_lab
         ggplot(aes(X1, X2, colour = .data[[label_name]], fill = .data[[label_name]])) + 
         theme_tufte(base_size = base_size) + 
         theme(panel.background = element_rect(fill = NA, color = "black")) + 
-        guides(color = guide_legend(override.aes = list(stroke = 1, alpha = 1, shape = 16, size = 4)), alpha = FALSE) +
+        guides(color = guide_legend(override.aes = list(stroke = 1, alpha = 1, shape = 16, size = 4)), alpha = "none") +
         scale_color_manual(values = palette_use) + 
         scale_fill_manual(values = palette_use) +    
         theme(plot.title = element_text(hjust = .5)) + 
@@ -69,12 +69,12 @@ do_scatter <- function(umap_use, meta_data, label_name, no_guides = TRUE, do_lab
         
 
     if (no_guides)
-        plt <- plt + guides("none")
+        plt <- plt + theme(legend.position = "none")
     
     if (do_labels) 
         plt <- plt + geom_label_repel(data = data.table(plt_df)[, .(X1 = mean(X1), X2 = mean(X2)), by = label_name], label.size = NA,
                                       aes(label = .data[[label_name]]), color = "white", size = pt_size, alpha = 1, segment.size = 0) + 
-        guides(col = FALSE, fill = FALSE)
+        guides(col = "none", fill = "none")
     return(plt)
 }
 
@@ -85,7 +85,7 @@ V <- cell_lines$scaled_pcs
 V_cos <- cosine_normalize(V, 1)
 meta_data <- cell_lines$meta_data
 
-## ---- warning=FALSE, fig.width=5, fig.height=3, fig.align="center"------------
+## ----warning=FALSE, fig.width=5, fig.height=3, fig.align="center"-------------
 do_scatter(V, meta_data, 'dataset', no_guides = TRUE, do_labels = TRUE) + 
     labs(title = 'Colored by dataset', x = 'PC1', y = 'PC2') +
 do_scatter(V, meta_data, 'cell_type', no_guides = TRUE, do_labels = TRUE) + 
@@ -107,18 +107,30 @@ harmonyObj <- harmony::RunHarmony(
 
 
 
-## ---- fig.width=5, fig.height=3, fig.align="center"---------------------------
-do_scatter(t(harmonyObj$Z_orig), meta_data, 'dataset', no_guides = TRUE, do_labels = TRUE) + 
+## -----------------------------------------------------------------------------
+## Cache embeddings as local R variables (cells × dims, matching input V).
+## Z_orig / Z_corr are not directly accessible as fields; use getter methods.
+Z_orig <- t(harmonyObj$getZorig())        # N × d
+Z_cos  <- cosine_normalize(Z_orig, 1)     # L2-normalised rows, N × d
+
+## Reconstruct the design matrix (B × N) from meta_data, matching what
+## harmony built internally
+phi <- Matrix::t(Matrix::sparse.model.matrix(~0 + as.factor(meta_data$dataset)))
+## phi_moe = intercept row prepended to phi  (matches Phi_moe inside harmony)
+phi_moe <- rbind(Matrix::Matrix(1, nrow = 1, ncol = ncol(phi), sparse = TRUE), phi)
+
+## ----fig.width=5, fig.height=3, fig.align="center"----------------------------
+do_scatter(Z_orig, meta_data, 'dataset', no_guides = TRUE, do_labels = TRUE) +
     labs(title = 'Z_orig', subtitle = 'Euclidean distance', x = 'PC1', y = 'PC2') +
-do_scatter(t(harmonyObj$Z_cos), meta_data, 'dataset', no_guides = TRUE, do_labels = TRUE) + 
+do_scatter(Z_cos, meta_data, 'dataset', no_guides = TRUE, do_labels = TRUE) +
     labs(title = 'Z_cos', subtitle = 'Induced Cosine distance', x = 'PC1', y = 'PC2')
 
 
-## ---- fig.width=8, fig.height=3, out.width="100%"-----------------------------
+## ----fig.width=8, fig.height=3, out.width="100%"------------------------------
 
-harmonyObj$Z_cos %>% t %>% data.frame() %>% 
-    cbind(meta_data) %>% 
-    tidyr::gather(key, val, X1:X20) %>% 
+Z_cos %>% data.frame() %>%
+    cbind(meta_data) %>%
+    tidyr::gather(key, val, X1:X20) %>%
     ggplot(aes(reorder(gsub('X', 'PC', key), as.integer(gsub('X', '', key))), val)) + 
         geom_boxplot(aes(color = dataset)) + 
         scale_color_manual(values = colors_use) + 
@@ -126,14 +138,14 @@ harmonyObj$Z_cos %>% t %>% data.frame() %>%
         theme_tufte(base_size = 10) + geom_rangeframe() + 
         theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-## ---- fig.width=4, fig.height=3, fig.align="center"---------------------------
+## ----fig.width=4, fig.height=3, fig.align="center"----------------------------
 
 cluster_centroids <- harmonyObj$Y
 
-do_scatter(t(harmonyObj$Z_cos), meta_data, 'dataset', no_guides = FALSE, do_labels = FALSE) + 
+do_scatter(Z_cos, meta_data, 'dataset', no_guides = FALSE, do_labels = FALSE) +
     labs(title = 'Initial kmeans cluster centroids', subtitle = '', x = 'PC1', y = 'PC2') +
     geom_point(
-        data = data.frame(t(cluster_centroids)), 
+        data = data.frame(t(cluster_centroids)),
         color = 'black', fill = 'black', alpha = .8,
         shape = 21, size = 6
     ) +
@@ -144,27 +156,27 @@ NULL
 cluster_assignment_matrix <- harmonyObj$R
 
 
-## ---- fig.height=5, fig.width=5-----------------------------------------------
-t(harmonyObj$Z_cos) %>% data.frame() %>%
-    cbind(meta_data) %>% 
-    tibble::rowid_to_column('id') %>% 
+## ----fig.height=5, fig.width=5------------------------------------------------
+Z_cos %>% data.frame() %>%
+    cbind(meta_data) %>%
+    tibble::rowid_to_column('id') %>%
     dplyr::inner_join(
-        cluster_assignment_matrix %>% t() %>% data.table() %>% 
+        cluster_assignment_matrix %>% t() %>% data.table() %>%
             tibble::rowid_to_column('id') %>%
-            tidyr::gather(cluster, r, -id) %>% 
-            dplyr::mutate(cluster = gsub('V', 'Cluster ', cluster)), 
+            tidyr::gather(cluster, r, -id) %>%
+            dplyr::mutate(cluster = gsub('V', 'Cluster ', cluster)),
         by = 'id'
-    ) %>% 
-    dplyr::sample_frac(1L) %>% 
-    ggplot(aes(X1, X2, color = r)) + 
-        geom_point(size=0.2) + 
-        theme_tufte(base_size = 10) + theme(panel.background = element_rect()) + 
-        facet_grid(cluster ~ dataset) + 
-        scale_color_gradient(low = 'lightgrey', breaks = seq(0, 1, .1)) + 
+    ) %>%
+    dplyr::sample_frac(1L) %>%
+    ggplot(aes(X1, X2, color = r)) +
+        geom_point(size=0.2) +
+        theme_tufte(base_size = 10) + theme(panel.background = element_rect()) +
+        facet_grid(cluster ~ dataset) +
+        scale_color_gradient(low = 'lightgrey', breaks = seq(0, 1, .1)) +
         labs(x = 'Scaled PC1', y = 'Scaled PC2', title = 'Initial probabilistic cluster assignments')
 
 ## -----------------------------------------------------------------------------
-observed_counts <- with(harmonyObj, R %*% t(as.matrix(Phi)))
+observed_counts <- harmonyObj$R %*% t(as.matrix(phi))
 round(observed_counts)
 
 
@@ -194,25 +206,25 @@ harmonyObj$cluster_cpp()
 ## -----------------------------------------------------------------------------
 round(harmonyObj$O)
 
-## ---- fig.height=5, fig.width=5-----------------------------------------------
+## ----fig.height=5, fig.width=5------------------------------------------------
 new_cluster_assignment_matrix <- harmonyObj$R
 
-t(harmonyObj$Z_cos) %>% data.frame() %>%
-    cbind(meta_data) %>% 
-    tibble::rowid_to_column('id') %>% 
+Z_cos %>% data.frame() %>%
+    cbind(meta_data) %>%
+    tibble::rowid_to_column('id') %>%
     dplyr::inner_join(
-        new_cluster_assignment_matrix %>% t() %>% data.table() %>% 
+        new_cluster_assignment_matrix %>% t() %>% data.table() %>%
             tibble::rowid_to_column('id') %>%
-            tidyr::gather(cluster, r, -id) %>% 
-            dplyr::mutate(cluster = gsub('V', 'Cluster ', cluster)), 
+            tidyr::gather(cluster, r, -id) %>%
+            dplyr::mutate(cluster = gsub('V', 'Cluster ', cluster)),
         by = 'id'
-    ) %>% 
-    dplyr::sample_frac(1L) %>% 
-    ggplot(aes(X1, X2, color = r)) + 
-        geom_point(shape = '.') + 
-        theme_tufte(base_size = 10) + theme(panel.background = element_rect()) + 
-        facet_grid(cluster ~ dataset) + 
-        scale_color_gradient(low = 'lightgrey', breaks = seq(0, 1, .1)) + 
+    ) %>%
+    dplyr::sample_frac(1L) %>%
+    ggplot(aes(X1, X2, color = r)) +
+        geom_point(shape = '.') +
+        theme_tufte(base_size = 10) + theme(panel.background = element_rect()) +
+        facet_grid(cluster ~ dataset) +
+        scale_color_gradient(low = 'lightgrey', breaks = seq(0, 1, .1)) +
         labs(x = 'Scaled PC1', y = 'Scaled PC2', title = 'New probabilistic cluster assignments')
 
 ## -----------------------------------------------------------------------------
@@ -226,65 +238,66 @@ round(apply(prop.table(observed_cell_counts, 1), 1, min) * 100, 3)
 ## -----------------------------------------------------------------------------
 
 with(harmonyObj, {
-    distance_matrix <- 2 * (1 - t(Y) %*% Z_cos)
+    distance_matrix <- 2 * (1 - t(Y) %*% t(Z_cos))
     distance_score <- exp(-distance_matrix / as.numeric(sigma))
-    diversity_score <- sweep(E / O, 2, theta, '/') %*% as.matrix(Phi)
+    diversity_score <- sweep(E / O, 2, theta, '/') %*% as.matrix(phi)
     ## new assignments are based on distance and diversity
-    R_new <- distance_score * diversity_score  
+    R_new <- distance_score * diversity_score
     ## normalize R so each cell sums to 1
-    R_new <- prop.table(R_new, 2)    
+    R_new <- prop.table(R_new, 2)
 })
 
 
 ## -----------------------------------------------------------------------------
 ## with theta = 0
 with(harmonyObj, {
-    (E / O) ^ 0
+    ((E+1) / (O+E+1)) ^ 0
 })
 
 ## -----------------------------------------------------------------------------
 ## with theta = 1
 with(harmonyObj, {
-    round((E / O) ^ 1, 2)
+    round(((E+1) / (O+E+1)) ^ 1, 2)
 })
 
 
 ## -----------------------------------------------------------------------------
 ## as theta approach infinity
 with(harmonyObj, {
-    round((E / O) ^ 1e6, 2)
+    round(((E+1) / (O+E+1)) ^ 1e6, 2)
 })
 
 
 ## -----------------------------------------------------------------------------
-Y_unscaled <- with(harmonyObj, Z_cos %*% t(R))
+Y_unscaled <- t(Z_cos) %*% t(harmonyObj$R)
 
 ## -----------------------------------------------------------------------------
 Y_new <- cosine_normalize(Y_unscaled, 2)
 
 ## -----------------------------------------------------------------------------
 harmonyObj$moe_correct_ridge_cpp()
+Z_corr <- t(harmonyObj$getZcorr())    # N × d, corrected (not L2-normalised)
 
-## ---- fig.width=5, fig.height=3, fig.align="center"---------------------------
+## ----fig.width=5, fig.height=3, fig.align="center"----------------------------
 
-do_scatter(cosine_normalize(t(harmonyObj$Z_orig), 1), meta_data, 'dataset', no_guides = TRUE, do_labels = TRUE) + 
+do_scatter(Z_cos, meta_data, 'dataset', no_guides = TRUE, do_labels = TRUE) +
     labs(title = 'Z_cos before MoE', x = 'PC1', y = 'PC2') +
-do_scatter(t(harmonyObj$Z_cos), meta_data, 'dataset', no_guides = TRUE, do_labels = TRUE) + 
+do_scatter(cosine_normalize(Z_corr, 1), meta_data, 'dataset', no_guides = TRUE, do_labels = TRUE) +
     labs(title = 'Z_cos after MoE', x = 'PC1', y = 'PC2')
 
-## ---- fig.width=8, fig.height=3, fig.align="center", out.width="100%"---------
+## ----fig.width=8, fig.height=3, fig.align="center", out.width="100%"----------
 
-do_scatter(t(harmonyObj$Z_orig), meta_data, 'dataset', no_guides = TRUE, do_labels = TRUE) + 
+do_scatter(Z_orig, meta_data, 'dataset', no_guides = TRUE, do_labels = TRUE) +
     labs(title = 'Z_orig', subtitle = 'Original PCA embeddings', x = 'PC1', y = 'PC2') +
-do_scatter(t(harmonyObj$Z_corr), meta_data, 'dataset', no_guides = TRUE, do_labels = TRUE) + 
+do_scatter(Z_corr, meta_data, 'dataset', no_guides = TRUE, do_labels = TRUE) +
     labs(title = 'Z_corr', subtitle = '= Z_orig - correction_factors', x = 'PC1', y = 'PC2') +
-do_scatter(t(harmonyObj$Z_cos), meta_data, 'dataset', no_guides = TRUE, do_labels = TRUE) + 
+do_scatter(cosine_normalize(Z_corr, 1), meta_data, 'dataset', no_guides = TRUE, do_labels = TRUE) +
     labs(title = 'Z_cos', subtitle = '= Unit_scaled(Z_corr)', x = 'Scaled PC1', y = 'Scaled PC2') +
 NULL
 
-## ---- fig.width=5, fig.height=3, fig.align="center"---------------------------
+## ----fig.width=5, fig.height=3, fig.align="center"----------------------------
 
-plt <- data.table(PC1_After = harmonyObj$Z_corr[1, ], PC1_Before = harmonyObj$Z_orig[1, ]) %>% 
+plt <- data.table(PC1_After = Z_corr[, 1], PC1_Before = Z_orig[, 1]) %>%
     cbind(meta_data) %>% 
     dplyr::sample_frac(1L) %>% 
     ggplot(aes(PC1_Before, PC1_After)) + 
@@ -303,39 +316,42 @@ plt + geom_point(shape = '.', aes(color = cell_type)) +
 NULL
 
 
-## ---- echo=TRUE---------------------------------------------------------------
+## ----echo=TRUE----------------------------------------------------------------
 
 W <- list()
 ## Convert sparse data structures to dense matrix
-Phi.moe <- as.matrix(harmonyObj$Phi_moe)
-lambda <- diag(c(harmonyObj$lambda))
-## Get beta coeeficients for all the clusters
+Phi.moe <- as.matrix(phi_moe)
+lambda_mat <- harmonyObj$getLambda()
+
+## Get beta coefficients for all the clusters
 for (k in 1:harmonyObj$K) {
-    W[[k]] <- solve(Phi.moe %*% diag(harmonyObj$R[k, ]) %*% t(Phi.moe) + lambda) %*% (Phi.moe %*% diag(harmonyObj$R[k, ])) %*% t(harmonyObj$Z_orig)
+    lambda <- diag(lambda_mat[k,])
+    W[[k]] <- solve(Phi.moe %*% diag(harmonyObj$R[k, ]) %*% t(as.matrix(Phi.moe)) + lambda) %*%
+              (Phi.moe %*% diag(harmonyObj$R[k, ])) %*% Z_orig
 }
 
 
 
-## ---- fig.width=5, fig.height=5-----------------------------------------------
+## ----fig.width=5, fig.height=5------------------------------------------------
 
 cluster_assignment_matrix <- harmonyObj$R
 
-t(harmonyObj$Z_orig) %>% data.frame() %>%
-    cbind(meta_data) %>% 
-    tibble::rowid_to_column('id') %>% 
+Z_orig %>% data.frame() %>%
+    cbind(meta_data) %>%
+    tibble::rowid_to_column('id') %>%
     dplyr::inner_join(
-        cluster_assignment_matrix %>% t() %>% data.table() %>% 
+        cluster_assignment_matrix %>% t() %>% data.table() %>%
             tibble::rowid_to_column('id') %>%
-            tidyr::gather(cluster, r, -id) %>% 
-            dplyr::mutate(cluster = gsub('V', 'Cluster ', cluster)), 
+            tidyr::gather(cluster, r, -id) %>%
+            dplyr::mutate(cluster = gsub('V', 'Cluster ', cluster)),
         by = 'id'
-    ) %>% 
-    dplyr::sample_frac(1L) %>% 
-    ggplot(aes(X1, X2, color = r)) + 
-        geom_point(shape = 0.2) + 
-        theme_tufte(base_size = 10) + theme(panel.background = element_rect()) + 
-        facet_grid(cluster ~ dataset) + 
-        scale_color_gradient(low = 'grey', breaks = seq(0, 1, .2)) + 
+    ) %>%
+    dplyr::sample_frac(1L) %>%
+    ggplot(aes(X1, X2, color = r)) +
+        geom_point(shape = 0.2) +
+        theme_tufte(base_size = 10) + theme(panel.background = element_rect()) +
+        facet_grid(cluster ~ dataset) +
+        scale_color_gradient(low = 'grey', breaks = seq(0, 1, .2)) +
         labs(x = 'PC1', y = 'PC2', title = 'Cluster assigned in original PCA space (Z_orig)')
 
 
@@ -353,10 +369,10 @@ plt_list <- lapply(1:harmonyObj$K, function(k) {
     plt <- plt_df %>% 
         ggplot() + 
             geom_point(aes(X1, X2),
-                       data = t(harmonyObj$Z_orig) %>% data.frame(),
+                       data = Z_orig %>% data.frame(),
                        size = 0.5,
                        color = 'grey'
-            ) + 
+            ) +
             geom_segment(aes(x = x0, y = y0, xend = X1 + x0, yend = X2 + y0, color = type), linewidth=1) + 
             scale_color_manual(values = c('intercept' = 'black', colors_use)) + 
             theme_tufte(base_size = 10) + theme(panel.background = element_rect()) + 
@@ -371,12 +387,12 @@ plt_list <- lapply(1:harmonyObj$K, function(k) {
 
 
 
-## ---- fig.height=6, fig.width=6-----------------------------------------------
+## ----fig.height=6, fig.width=6------------------------------------------------
 Reduce(`+`, plt_list) + 
   patchwork::plot_annotation(title = 'Mixture of experts beta terms before correction (Z_orig)') + 
   plot_layout(ncol = 2)
 
-## ---- fig.width=4, fig.height=3, fig.align="center"---------------------------
+## ----fig.width=4, fig.height=3, fig.align="center"----------------------------
 
 plt_list <- lapply(1:harmonyObj$K, function(k) {
     plt_df <- W[[k]] %>% data.frame() %>% 
@@ -392,10 +408,10 @@ plt_list <- lapply(1:harmonyObj$K, function(k) {
     plt <- plt_df %>% 
         ggplot() + 
             geom_point(aes(X1, X2),
-                data = t(harmonyObj$Z_corr) %>% data.frame(),
-                shape = '.', 
+                data = Z_corr %>% data.frame(),
+                shape = '.',
                 color = 'grey'
-            ) + 
+            ) +
             geom_segment(aes(x = x0, y = y0, xend = X1 + x0, yend = X2 + y0, color = type), linewidth=1) + 
             scale_color_manual(values = c('intercept' = 'black', colors_use)) + 
             theme_tufte(base_size = 10) + theme(panel.background = element_rect()) + 
@@ -406,21 +422,21 @@ plt_list <- lapply(1:harmonyObj$K, function(k) {
 
 
 
-## ---- fig.height=6, fig.width=6-----------------------------------------------
+## ----fig.height=6, fig.width=6------------------------------------------------
 Reduce(`+`, plt_list) + 
   patchwork::plot_annotation(title = 'Mixture of experts beta terms after correction (Z_corr)') + 
   plot_layout(ncol = 2)
 
-## ---- echo=TRUE---------------------------------------------------------------
+## ----echo=TRUE----------------------------------------------------------------
 
-Z_i <- harmonyObj$Z_orig[, 5]
+Z_i <- Z_orig[5, ]
 Z_i_pred <- Reduce(`+`, lapply(1:harmonyObj$K, function(k) {
-    W[[k]] * harmonyObj$Phi_moe[, 5] * harmonyObj$R[k, 5]
+    W[[k]] * phi_moe[, 5] * harmonyObj$R[k, 5]
 })) %>% colSums
 
 
 
-## ---- fig.width=4, fig.height=3, fig.align="center"---------------------------
+## ----fig.width=4, fig.height=3, fig.align="center"----------------------------
 data.table(obs = Z_i, pred = Z_i_pred) %>% 
     tibble::rowid_to_column('PC') %>% 
     ggplot(aes(obs, pred)) + 
@@ -433,25 +449,25 @@ data.table(obs = Z_i, pred = Z_i_pred) %>%
 
 ## -----------------------------------------------------------------------------
 delta <- Reduce(`+`, lapply(1:harmonyObj$K, function(k) {
-    W[[k]][2:4, ] * harmonyObj$Phi[, 5] * harmonyObj$R[k, 5]
+    W[[k]][2:4, ] * phi[, 5] * harmonyObj$R[k, 5]
 })) %>% colSums
 
-Z_corrected <- harmonyObj$Z_orig[, 5] - delta
+Z_corrected <- Z_orig[5, ] - delta
 
 
-## ---- fig.width=3, fig.height=3, fig.align="center"---------------------------
+## ----fig.width=3, fig.height=3, fig.align="center"----------------------------
 
 
-harmonyObj$Z_orig %>% t %>% data.frame() %>% 
-    ggplot(aes(X1, X2)) + 
-        geom_point(shape = '.') + 
+Z_orig %>% data.frame() %>%
+    ggplot(aes(X1, X2)) +
+        geom_point(shape = '.') +
         geom_point(
-            data = data.frame(t(harmonyObj$Z_orig[, 5, drop = FALSE])), 
+            data = data.frame(Z_orig[5, , drop = FALSE]),
             color = 'red'
-        ) + 
+        ) +
         geom_segment(
-            data = data.table(x0 = harmonyObj$Z_orig[1, 5], 
-                              y0 = harmonyObj$Z_orig[2, 5], 
+            data = data.table(x0 = Z_orig[5, 1],
+                              y0 = Z_orig[5, 2],
                               x1 = Z_corrected[1],
                               y1 = Z_corrected[2]), 
             aes(x = x0, y = y0, xend = x1, yend = y1),
@@ -474,25 +490,27 @@ harmonyObj <- RunHarmony(
     max_iter = 0, ## don't actually run Harmony, stop after initialization
     return_object = TRUE ## return the full Harmony model object, not just the corrected PCA matrix
 )
+Z_cos <- cosine_normalize(t(harmonyObj$getZorig()), 1)   # N × d, initial state
 
 
-## ---- message=FALSE, fig.width=5, fig.height=3, fig.align="center"------------
+## ----message=FALSE, fig.width=5, fig.height=3, fig.align="center"-------------
 
 i <- 0
 
-do_scatter(t(harmonyObj$Z_cos), meta_data, 'dataset', no_guides = TRUE, do_labels = TRUE) + 
+do_scatter(Z_cos, meta_data, 'dataset', no_guides = TRUE, do_labels = TRUE) +
     labs(title = sprintf('Round %d', i), subtitle = 'Colored by dataset', x = 'Scaled PC1', y = 'Scaled PC2') +
-do_scatter(t(harmonyObj$Z_cos), meta_data, 'cell_type', no_guides = TRUE, do_labels = TRUE) + 
+do_scatter(Z_cos, meta_data, 'cell_type', no_guides = TRUE, do_labels = TRUE) +
     labs(title = sprintf('Round %d', i), subtitle = 'Colored by cell type', x = 'Scaled PC1', y = 'Scaled PC2') +
 NULL
 
-## ---- fig.width=5, fig.height=3, fig.align="center", message=FALSE------------
+## ----fig.width=5, fig.height=3, fig.align="center", message=FALSE-------------
 
-for (i in 1:2) {
+for (i in 1:5) {
     harmony:::harmonize(harmonyObj, 1)
-    plt <- do_scatter(t(harmonyObj$Z_cos), meta_data, 'dataset', no_guides = TRUE, do_labels = TRUE) + 
+    Z_cos <- cosine_normalize(t(harmonyObj$getZcorr()), 1)   # N × d, after round i
+    plt <- do_scatter(Z_cos, meta_data, 'dataset', no_guides = TRUE, do_labels = TRUE) +
         labs(title = sprintf('Round %d', i), subtitle = 'Colored by dataset', x = 'Scaled PC1', y = 'Scaled PC2') +
-    do_scatter(t(harmonyObj$Z_cos), meta_data, 'cell_type', no_guides = TRUE, do_labels = TRUE) + 
+    do_scatter(Z_cos, meta_data, 'cell_type', no_guides = TRUE, do_labels = TRUE) +
         labs(title = sprintf('Round %d', i), subtitle = 'Colored by cell type', x = 'Scaled PC1', y = 'Scaled PC2') +
     NULL
     plot(plt)
