@@ -1,6 +1,6 @@
 Package: harmony
 Title: Fast, Sensitive, and Accurate Integration of Single Cell Data
-Version: 2.0.2
+Version: 2.0.3
 Authors@R: c(
     person("Nikolaos", "Patikas", email = "nik.patik@gmail.com",
         role = c("aut", "ctb"), comment = c(ORCID = "0000-0002-3978-0134")),
@@ -38,7 +38,7 @@ Suggests: SingleCellExperiment, Seurat (>= 4.1.1), testthat, knitr,
         data.table
 VignetteBuilder: knitr
 NeedsCompilation: yes
-Packaged: 2026-04-21 16:35:39 UTC; main
+Packaged: 2026-05-13 15:19:41 UTC; main
 Author: Nikolaos Patikas [aut, ctb] (ORCID:
     <https://orcid.org/0000-0002-3978-0134>),
   Hongcheng Yao [aut, ctb] (ORCID:
@@ -55,4 +55,4 @@ Author: Nikolaos Patikas [aut, ctb] (ORCID:
     <https://orcid.org/0000-0002-1901-8265>)
 Maintainer: Ilya Korsunsky <ilya.korsunsky@gmail.com>
 Repository: CRAN
-Date/Publication: 2026-04-25 06:40:02 UTC
+Date/Publication: 2026-05-13 16:20:02 UTC
