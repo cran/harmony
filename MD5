@@ -1,4 +1,4 @@
-e48e7dc6eeead2927d0437fb19a2e595 *DESCRIPTION
+ed578a15de783a51720c66d73165a6b6 *DESCRIPTION
 aa76304a9b7eaf635938a558e185403b *NAMESPACE
 5a63030ade96eb29f432be14461d1340 *NEWS
 dde6535319f2c192ccf28948f0e747c8 *R/RcppExports.R
@@ -8,9 +8,9 @@ beba1adcbe6e4edfa137634e7f996739 *R/data.R
 151d5332c561bc933bd1a2c67e590be2 *R/harmony_option.R
 2bb1b38258ece02a225d3ab52a08e66d *R/ui.R
 af4f3acb5f3cdd0594a38e703581ef44 *R/utils.R
-474493539bd48d667c91cd3f10d0e30f *R/zzz.R
-1bf18d9c216b8d95033f0bd2fe2906b2 *build/partial.rdb
-669a27696f806aa8d603de9331d1898d *build/vignette.rds
+168b6ed30f86ca090efdfa8db8bd2201 *R/zzz.R
+76e123f5dcc8dee07678412adc0a2a84 *build/partial.rdb
+47d6ad4ba217ae2b5df3c656815f0ef8 *build/vignette.rds
 ba3caf48933f8c648233c7cf67566f2f *cleanup
 9dcddd10108f233a35bfbd87b5c5d760 *cleanup.win
 51c05a70374c549feb8fbe0b67de9655 *configure
@@ -20,13 +20,13 @@ f82d1b8d3efc9e04567b9223a87cfc8c *data/cell_lines.rda
 57ef1f51bea342b5bfba9ce640cef81d *data/pbmc_stim.RData
 a2acb5946cfc8eeeecec015e64ed56ac *inst/doc/Seurat.R
 a14a2aed5e28ecf5ae780c2adaf01612 *inst/doc/Seurat.Rmd
-df24a3e4e9cbd84a6a6dca6fe8cd72c6 *inst/doc/Seurat.html
+0fdcf606fe55c0880537279d2efb01a1 *inst/doc/Seurat.html
 41d32b547b9fc6c05051a90bd74ae880 *inst/doc/detailedWalkthrough.R
 3bb260dae8f34047cef4e3b293d6d22d *inst/doc/detailedWalkthrough.Rmd
-23c727e3c500f17b5d01c237d310a424 *inst/doc/detailedWalkthrough.html
+29b56fc83b1b99893aa5665b2cfcb5f5 *inst/doc/detailedWalkthrough.html
 84083451c47aca22c09c64dc8359e281 *inst/doc/quickstart.R
 2b30d65b02489a513a4e63a31339dfde *inst/doc/quickstart.Rmd
-0082978039d0ef7e9ad5d10d8e16ad40 *inst/doc/quickstart.html
+19e28ae337ad0f07fbb3e86f7ee2712c *inst/doc/quickstart.html
 6a3cf3e953867a70093f1f9e6ab8d359 *man/RunHarmony.Rd
 aa0210552afb538968b68cdfbdaf1369 *man/RunHarmony.Seurat.Rd
 a57d7382c509c4de09d7a9f5915d9bb1 *man/RunHarmony.SingleCellExperiment.Rd
@@ -51,7 +51,7 @@ aad97be1604a9e8a6c30e19f8ce4b4d2 *src/timer.cpp
 f6ac8a49936237b5f1daba2184bc3606 *src/utils.h
 3fdb4f1b18c10e695a84e923f77a5046 *tests/testthat.R
 a8378b5a7a4c8cc9aadde458563400d5 *tests/testthat/test_integration.R
-bbef14ed3c9f39a138d45eef111c03a7 *tests/testthat/test_two_variable.R
+a8622f0ff7aa91b8dd55d3cc04f1ac5d *tests/testthat/test_two_variable.R
 a14a2aed5e28ecf5ae780c2adaf01612 *vignettes/Seurat.Rmd
 3bb260dae8f34047cef4e3b293d6d22d *vignettes/detailedWalkthrough.Rmd
 a929e50a91b1af9de88c7353a2257c42 *vignettes/main.jpg
